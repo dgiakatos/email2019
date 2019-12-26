@@ -5,6 +5,14 @@ public class Email {
     private String subject;
     private String mainBody;
 
+    Email() {
+        this.isNew = false;
+        this.sender = null;
+        this.receiver = null;
+        this.subject = null;
+        this.mainBody = null;
+    }
+
     Email(boolean isNew, String sender, String receiver, String subject, String mainBody) {
         this.isNew = isNew;
         this.sender = sender;

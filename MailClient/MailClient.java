@@ -109,7 +109,35 @@ public class MailClient {
         while (true) {
             try {
                 if (send.equals("NewEmail")) {
-
+                    System.out.println("----------");
+                    System.out.println("MailSever:");
+                    System.out.println("----------");
+                    System.out.println("Receiver:");
+                    System.out.println("==========");
+                    send = scanner.nextLine();
+                    out.writeUTF(send);
+                    if (in.readUTF().equals("true")) {
+                        System.out.println("----------");
+                        System.out.println("MailSever:");
+                        System.out.println("----------");
+                        System.out.println("Subject:");
+                        System.out.println("==========");
+                        send = scanner.nextLine();
+                        out.writeUTF(send);
+                        System.out.println("----------");
+                        System.out.println("MailSever:");
+                        System.out.println("----------");
+                        System.out.println("Main body:");
+                        System.out.println("==========");
+                        send = scanner.nextLine();
+                        out.writeUTF(send);
+                        System.out.println("----------");
+                        System.out.println("MailSever:");
+                        System.out.println("----------");
+                        System.out.println("Email sent successfully.");
+                    } else {
+                        System.out.println("The receiver does not exist.");
+                    }
                 } else if (send.equals("ShowEmails")) {
                     System.out.println("----------");
                     System.out.println("MailSever:");
@@ -136,14 +164,41 @@ public class MailClient {
                     System.out.println("> ReadEmail");
                     System.out.println("> DeleteEmail");
                     System.out.println("> LogOut");
-                    System.out.println("> Exit");
                     System.out.println("==========");
                     send = scanner.nextLine();
                     out.writeUTF(send);
-                } else if (send.equals("ReadEmails")) {
-
-                } else if (send.equals("DeleteEmails")) {
-
+                } else if (send.split(" ")[0].equals("ReadEmail")) {
+                    System.out.println("----------");
+                    System.out.println("MailSever:");
+                    System.out.println("----------");
+                    System.out.println("Reading email " + send.split(" ")[1] + ":");
+                    System.out.println("----------");
+                    System.out.println(in.readUTF());
+                    System.out.println("==========");
+                    System.out.println("> NewEmail");
+                    System.out.println("> ShowEmails");
+                    System.out.println("> ReadEmail");
+                    System.out.println("> DeleteEmail");
+                    System.out.println("> LogOut");
+                    System.out.println("==========");
+                    send = scanner.nextLine();
+                    out.writeUTF(send);
+                } else if (send.split(" ")[0].equals("DeleteEmail")) {
+                    System.out.println("----------");
+                    System.out.println("MailSever:");
+                    System.out.println("----------");
+                    System.out.println("Deleting email " + send.split(" ")[1] + ":");
+                    System.out.println("----------");
+                    System.out.println(in.readUTF());
+                    System.out.println("==========");
+                    System.out.println("> NewEmail");
+                    System.out.println("> ShowEmails");
+                    System.out.println("> ReadEmail");
+                    System.out.println("> DeleteEmail");
+                    System.out.println("> LogOut");
+                    System.out.println("==========");
+                    send = scanner.nextLine();
+                    out.writeUTF(send);
                 } else if (send.equals("LogOut")) {
                     break;
                 } else if (send.equals("Exit")) {
@@ -161,7 +216,6 @@ public class MailClient {
                     System.out.println("> ReadEmail");
                     System.out.println("> DeleteEmail");
                     System.out.println("> LogOut");
-                    System.out.println("> Exit");
                     System.out.println("==========");
                     send = scanner.nextLine();
                     out.writeUTF(send);

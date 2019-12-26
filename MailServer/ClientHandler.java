@@ -17,7 +17,6 @@ public class ClientHandler extends Thread {
         this.socket = socket;
         this.in = in;
         this.out = out;
-        importAccounts();
     }
 
     @Override
@@ -27,18 +26,26 @@ public class ClientHandler extends Thread {
                 received = in.readUTF();
                 //out.writeUTF("123");
                 if (received.equals("LogIn") && currentAccount.isNull()) {
+                    accountList.clear();
+                    importAccounts();
                     logIn();
                 } else if (received.equals("Register") && currentAccount.isNull()) {
                     register();
                     accountList.clear();
                     importAccounts();
-                } else if (received.equals("Exit")) {
+                } else if (received.equals("Exit") && currentAccount.isNull()) {
                     exit();
                     break;
                 } else if (received.equals("LogOut") && !currentAccount.isNull()) {
                     logOut();
                 } else if (received.equals("ShowEmails") && !currentAccount.isNull()) {
                     showEmails();
+                } else if (received.split(" ")[0].equals("ReadEmail") && !currentAccount.isNull()) {
+                    readEmail(received.split(" ")[1]);
+                } else if (received.split(" ")[0].equals("DeleteEmail") && !currentAccount.isNull()) {
+                    deleteEmail(received.split(" ")[1]);
+                } else if (received.equals("NewEmail") && !currentAccount.isNull()) {
+                    newEmail();
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -90,6 +97,34 @@ public class ClientHandler extends Thread {
         } catch (IOException e) {
             e.printStackTrace();
             return false;
+        }
+    }
+
+    private void exportMailbox() {
+        try {
+            BufferedWriter file = new BufferedWriter(new FileWriter("MailServer/" + currentAccount.getUsername() + "_mailbox.txt"));
+            for (Email email : currentAccount.getMailbox()) {
+                file.write(email.getIsNew() + "\n");
+                file.write(email.getSender() + "\n");
+                file.write(email.getSubject() + "\n");
+                file.write(email.getMainBody() + "\n");
+            }
+            file.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void appendMailBox(Email email) {
+        try {
+            BufferedWriter file = new BufferedWriter(new FileWriter("MailServer/" + email.getReceiver() + "_mailbox.txt", true));
+            file.write(email.getIsNew() + "\n");
+            file.write(email.getSender() + "\n");
+            file.write(email.getSubject() + "\n");
+            file.write(email.getMainBody() + "\n");
+            file.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -146,7 +181,34 @@ public class ClientHandler extends Thread {
         }
     }
 
-    private void newEmail() {}
+    private void newEmail() {
+        try {
+            Email sentEmail = new Email();
+            received = in.readUTF();
+            boolean receiverExist = false;
+            for (Account account : accountList) {
+                if (account.getUsername().equals(received)) {
+                    out.writeUTF("true");
+                    receiverExist = true;
+                    sentEmail.setIsNew(true);
+                    sentEmail.setSender(currentAccount.getUsername());
+                    sentEmail.setReceiver(account.getUsername());
+                    received = in.readUTF();
+                    sentEmail.setSubject(received);
+                    received = in.readUTF();
+                    sentEmail.setMainBody(received);
+                    appendMailBox(sentEmail);
+                    System.out.println("new email");
+                    break;
+                }
+            }
+            if (!receiverExist) {
+                out.writeUTF("false");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     private void showEmails() {
         try {
@@ -161,11 +223,32 @@ public class ClientHandler extends Thread {
         }
     }
 
-    private void readEmail() {}
+    private void readEmail(String emailId) {
+        try {
+            if (Integer.parseInt(emailId)<=0 || Integer.parseInt(emailId)>currentAccount.getMailbox().size()) {
+                out.writeUTF("Wrong email id.");
+            }
+            currentAccount.getMailbox().get(Integer.parseInt(emailId)-1).setIsNew(false);
+            out.writeUTF(currentAccount.getMailbox().get(Integer.parseInt(emailId)-1).getMainBody());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
-    private void deleteEmail() {}
+    private void deleteEmail(String emailId) {
+        try {
+            if (Integer.parseInt(emailId)<=0 || Integer.parseInt(emailId)>currentAccount.getMailbox().size()) {
+                out.writeUTF("Wrong email id.");
+            }
+            currentAccount.getMailbox().remove(Integer.parseInt(emailId)-1);
+            out.writeUTF("Email deleted.");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     private void logOut() {
+        exportMailbox();
         Account account = new Account();
         currentAccount.setAccount(account);
     }
