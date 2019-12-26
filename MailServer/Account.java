@@ -5,6 +5,12 @@ public class Account {
     private String password;
     private ArrayList<Email> mailbox;
 
+    Account(String username, String password) {
+        this.username = username;
+        this.password = password;
+        this.mailbox = null;
+    }
+
     Account(String username, String password, ArrayList<Email> mailbox){
         this.username = username;
         this.password = password;

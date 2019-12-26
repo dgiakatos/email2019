@@ -24,10 +24,13 @@ public class ClientHandler extends Thread {
         while (true) {
             try {
                 received = in.readUTF();
+                //out.writeUTF("123");
                 if (received.equals("LogIn")) {
                     logIn();
-                } else if (received.equals("SignIn")) {
+                } else if (received.equals("Register")) {
                     register();
+                    accountList.clear();
+                    importAccounts();
                 } else if (received.equals("Exit")) {
                     exit();
                     break;
@@ -40,7 +43,7 @@ public class ClientHandler extends Thread {
 
     private void importAccounts() {
         try {
-            File file = new File("MailServer/accounts.txt");
+            BufferedReader file = new BufferedReader(new FileReader("MailServer/accounts.txt"));
             Scanner scanner = new Scanner(file);
             String username;
             String password;
@@ -49,7 +52,8 @@ public class ClientHandler extends Thread {
                 password = scanner.nextLine();
                 accountList.add(new Account(username, password, importAccountMail(username)));
             }
-        } catch (FileNotFoundException e) {
+            file.close();
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -57,34 +61,79 @@ public class ClientHandler extends Thread {
     private ArrayList<Email> importAccountMail(String email) {
         ArrayList<Email> emailList = new ArrayList<>();
         try {
-            File file = new File("MailServer/".concat(email.concat("_mailbox.txt")));
+            BufferedReader file = new BufferedReader(new FileReader("MailServer/".concat(email.concat("_mailbox.txt"))));
             Scanner scanner = new Scanner(file);
             while (scanner.hasNextLine()) {
                 emailList.add(new Email(Boolean.parseBoolean(scanner.nextLine()), email, scanner.nextLine(), scanner.nextLine(), scanner.nextLine()));
             }
-        } catch (FileNotFoundException e) {
+            file.close();
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return emailList;
     }
 
-    private void register() {}
+    private boolean exportAccount(Account account) {
+        try {
+            BufferedWriter file = new BufferedWriter(new FileWriter("MailServer/accounts.txt", true));
+            file.write(account.getUsername() + "\n");
+            file.write(account.getPassword() + "\n");
+            file.close();
+            file = new BufferedWriter(new FileWriter("MailServer/" + account.getUsername() + "_mailbox.txt"));
+            file.close();
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    private void register() {
+        try {
+            String username = in.readUTF();
+            boolean usernameUnique = false;
+            boolean accountCreated = false;
+            for (Account account : accountList) {
+                if (account.getUsername().equals(username)) {
+                    out.writeUTF(String.valueOf(usernameUnique));
+                    return;
+                }
+            }
+            usernameUnique = true;
+            out.writeUTF(String.valueOf(usernameUnique));
+            String password = in.readUTF();
+            if (exportAccount(new Account(username, password))) {
+                accountCreated = true;
+                out.writeUTF(String.valueOf(accountCreated));
+            } else {
+                out.writeUTF(String.valueOf(accountCreated));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     private void logIn() {
         try {
             received = in.readUTF();
+            boolean usernameFound = false;
+            boolean passwordFound = false;
             for (Account account : accountList) {
                 if (account.getUsername().equals(received)) {
-                    out.writeUTF("true");
+                    usernameFound = true;
+                    out.writeUTF(String.valueOf(usernameFound));
                     received = in.readUTF();
                     if (account.getPassword().equals(received)) {
-                        out.writeUTF("true");
+                        passwordFound = true;
+                        out.writeUTF(String.valueOf(passwordFound));
                     } else {
-                        out.writeUTF("false");
+                        out.writeUTF(String.valueOf(passwordFound));
                     }
-                } else {
-                    out.writeUTF("false");
+                    break;
                 }
+            }
+            if (!usernameFound) {
+                out.writeUTF(String.valueOf(usernameFound));
             }
         } catch (IOException e) {
             e.printStackTrace();
