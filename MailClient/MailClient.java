@@ -32,7 +32,10 @@ public class MailClient {
                         out.writeUTF(send);
                         received = in.readUTF();
                         if (received.equals("true")) {
-                            connected();
+                            connected(socket, in, out);
+                            if (socket.isClosed()) {
+                                break;
+                            }
                         } else {
                             System.out.println("----------");
                             System.out.println("MailSever:");
@@ -100,7 +103,72 @@ public class MailClient {
         }
     }
 
-    private static void connected() {
-        System.out.println("Connected!");
+    private static void connected(Socket socket, DataInputStream in, DataOutputStream out) {
+        String send = "";
+        Scanner scanner = new Scanner(System.in);
+        while (true) {
+            try {
+                if (send.equals("NewEmail")) {
+
+                } else if (send.equals("ShowEmails")) {
+                    System.out.println("----------");
+                    System.out.println("MailSever:");
+                    System.out.println("----------");
+                    System.out.println("Email list:");
+                    System.out.println("----------");
+                    System.out.println("Id\t\t\tFrom\t\t\tSubject");
+                    try {
+                        int size = Integer.parseInt(in.readUTF());
+                        for (int i = 0; i < size; i++) {
+                            System.out.print((i + 1) + ".\t");
+                            if (in.readUTF().equals("true")) {
+                                System.out.print("[New]\t");
+                            }
+                            System.out.print(in.readUTF() + "\t");
+                            System.out.println(in.readUTF());
+                        }
+                    } catch (NumberFormatException e) {
+                        e.fillInStackTrace();
+                    }
+                    System.out.println("==========");
+                    System.out.println("> NewEmail");
+                    System.out.println("> ShowEmails");
+                    System.out.println("> ReadEmail");
+                    System.out.println("> DeleteEmail");
+                    System.out.println("> LogOut");
+                    System.out.println("> Exit");
+                    System.out.println("==========");
+                    send = scanner.nextLine();
+                    out.writeUTF(send);
+                } else if (send.equals("ReadEmails")) {
+
+                } else if (send.equals("DeleteEmails")) {
+
+                } else if (send.equals("LogOut")) {
+                    break;
+                } else if (send.equals("Exit")) {
+                    out.writeUTF(send);
+                    socket.close();
+                    break;
+                } else {
+                    System.out.println("----------");
+                    System.out.println("MailSever:");
+                    System.out.println("----------");
+                    System.out.println("Welcome back ");
+                    System.out.println("==========");
+                    System.out.println("> NewEmail");
+                    System.out.println("> ShowEmails");
+                    System.out.println("> ReadEmail");
+                    System.out.println("> DeleteEmail");
+                    System.out.println("> LogOut");
+                    System.out.println("> Exit");
+                    System.out.println("==========");
+                    send = scanner.nextLine();
+                    out.writeUTF(send);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

@@ -11,6 +11,7 @@ public class ClientHandler extends Thread {
     private DataOutputStream out;
     private ArrayList<Account> accountList = new ArrayList<>();
     private String received;
+    private Account currentAccount = new Account();
 
     public ClientHandler(Socket socket, DataInputStream in, DataOutputStream out) {
         this.socket = socket;
@@ -25,15 +26,19 @@ public class ClientHandler extends Thread {
             try {
                 received = in.readUTF();
                 //out.writeUTF("123");
-                if (received.equals("LogIn")) {
+                if (received.equals("LogIn") && currentAccount.isNull()) {
                     logIn();
-                } else if (received.equals("Register")) {
+                } else if (received.equals("Register") && currentAccount.isNull()) {
                     register();
                     accountList.clear();
                     importAccounts();
                 } else if (received.equals("Exit")) {
                     exit();
                     break;
+                } else if (received.equals("LogOut") && !currentAccount.isNull()) {
+                    logOut();
+                } else if (received.equals("ShowEmails") && !currentAccount.isNull()) {
+                    showEmails();
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -64,7 +69,7 @@ public class ClientHandler extends Thread {
             BufferedReader file = new BufferedReader(new FileReader("MailServer/".concat(email.concat("_mailbox.txt"))));
             Scanner scanner = new Scanner(file);
             while (scanner.hasNextLine()) {
-                emailList.add(new Email(Boolean.parseBoolean(scanner.nextLine()), email, scanner.nextLine(), scanner.nextLine(), scanner.nextLine()));
+                emailList.add(new Email(Boolean.parseBoolean(scanner.nextLine()), scanner.nextLine(), email, scanner.nextLine(), scanner.nextLine()));
             }
             file.close();
         } catch (IOException e) {
@@ -125,6 +130,7 @@ public class ClientHandler extends Thread {
                     received = in.readUTF();
                     if (account.getPassword().equals(received)) {
                         passwordFound = true;
+                        currentAccount.setAccount(account);
                         out.writeUTF(String.valueOf(passwordFound));
                     } else {
                         out.writeUTF(String.valueOf(passwordFound));
@@ -142,13 +148,27 @@ public class ClientHandler extends Thread {
 
     private void newEmail() {}
 
-    private void showEmails() {}
+    private void showEmails() {
+        try {
+            out.writeUTF(String.valueOf(currentAccount.getMailbox().size()));
+            for (Email email : currentAccount.getMailbox()) {
+                out.writeUTF(String.valueOf(email.getIsNew()));
+                out.writeUTF(email.getSender());
+                out.writeUTF(email.getSubject());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
-    private void readEmails() {}
+    private void readEmail() {}
 
-    private void deleteEmails() {}
+    private void deleteEmail() {}
 
-    private void logOut() {}
+    private void logOut() {
+        Account account = new Account();
+        currentAccount.setAccount(account);
+    }
 
     private void exit() {
             System.out.println("Socket " + socket + " close.");
