@@ -20,10 +20,10 @@ public class MailClient {
         String send = "";
         String received;
         try {
+            Scanner scanner = new Scanner(System.in);
             Socket socket = new Socket(args[0], Integer.parseInt(args[1]));
             DataInputStream in = new DataInputStream(socket.getInputStream());
             DataOutputStream out = new DataOutputStream(socket.getOutputStream());
-            Scanner scanner = new Scanner(System.in);
             while (true) {
                 if (send.equals("LogIn")) {
                     System.out.println("----------");
