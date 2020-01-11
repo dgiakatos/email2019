@@ -21,7 +21,6 @@ public class MailServer {
             Socket socket = null;
             try {
                 socket = mailServer.accept();
-                System.out.println("Client: " + socket);
                 DataInputStream in = new DataInputStream(socket.getInputStream());
                 DataOutputStream out = new DataOutputStream(socket.getOutputStream());
                 Thread thread = new ClientHandler(socket, in, out);

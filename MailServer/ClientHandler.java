@@ -38,7 +38,6 @@ public class ClientHandler extends Thread {
         while (true) {
             try {
                 received = in.readUTF();
-                //out.writeUTF("123");
                 if (received.equals("LogIn") && currentAccount.isNull()) {
                     accountList.clear();
                     importAccounts();
@@ -337,7 +336,6 @@ public class ClientHandler extends Thread {
      * εξυπηρετητή και θα απελευθερώνει τους πόρους του συστήματος.
      */
     private void exit() {
-            System.out.println("Socket " + socket + " close.");
             try {
                 socket.close();
             } catch (IOException e) {
