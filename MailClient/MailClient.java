@@ -3,13 +3,25 @@ import java.io.DataOutputStream;
 import java.net.Socket;
 import java.util.Scanner;
 
+/**
+ * @author Δημήτριος Παντελεήμων Γιακάτος
+ * Η κλάση υλοποιεί ένα γραφικό περιβάλλον στη γραμμή εντολλών για να μπορεί ο χρήστης να έχει διεπαφή με τον
+ * εξυπηρετητή. Ο χρήστης στέλνει στον εξυπηρετητή τα αιτήματα που θέλει και λαμβάνει από τον εξυπηρετητή τα
+ * αντίστοιχα αποτελέσματα.
+ */
 public class MailClient {
+    /**
+     * Η μέθοδος ανοίγει ένα socket στην ip του εξυπηρετητή και εμφανίζει στον χρήστη τα αίτήματα που μπορεί να
+     * εκτελέσει.
+     * @param args Την ip και την port του εξυπηρετητή
+     * @throws Exception Κάποιο μήνυμα με βάση το σφάλμα που έχει συμβεί.
+     */
     public static void main(String[] args) throws Exception {
         String send = "";
         String received;
         try {
             Scanner scanner = new Scanner(System.in);
-            Socket socket = new Socket("127.0.0.1", 1);
+            Socket socket = new Socket(args[0], Integer.parseInt(args[1]));
             DataInputStream in = new DataInputStream(socket.getInputStream());
             DataOutputStream out = new DataOutputStream(socket.getOutputStream());
             while (true) {
@@ -103,6 +115,12 @@ public class MailClient {
         }
     }
 
+    /**
+     * Η διεπαφή του εξυπηρετητή μετά την επιτυχημένη σύνδεση ενός λογαριασμού.
+     * @param socket Το socket της συγκεκριμένης αίτησης.
+     * @param in Το DataInputStream της συγκεκριμένης αίτησης, δηλαδή τα δεδομένα που λαμβάνει από τον εξυπηρετητή
+     * @param out Το DataOutputStream της συγκεκριμένης αίτησης, δηλαδή τα δεδομένα που στέλνει στον εξυπηρετητή.
+     */
     private static void connected(Socket socket, DataInputStream in, DataOutputStream out) {
         String send = "";
         Scanner scanner = new Scanner(System.in);

@@ -5,6 +5,10 @@ import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * @author Δημήτριος Παντελεήμων Γιακάτος
+ * Η κλάση εξυπηρετεί τα αιτήματα ενός πελάτη.
+ */
 public class ClientHandler extends Thread {
     private Socket socket;
     private DataInputStream in;
@@ -13,12 +17,22 @@ public class ClientHandler extends Thread {
     private String received;
     private Account currentAccount = new Account();
 
+    /**
+     * Ο constructor της κλάσης.
+     * @param socket Το socket της εισερχόμενης αίτησης.
+     * @param in Το αίτημα που λαμβάνει από τον πελάτη.
+     * @param out Τη πληροφορία που θα στείλει στον πελάτη.
+     */
     public ClientHandler(Socket socket, DataInputStream in, DataOutputStream out) {
         this.socket = socket;
         this.in = in;
         this.out = out;
     }
 
+    /**
+     * Η μέθοδος εκτελείται συνέχεια μέχρι ο πελάτης να τερματήσει την σύνδεση με τον εξυπηρετητή.
+     * Εκτελεί κάποια λειτουργεία του εξυπηρετητή μέτα από κάποιο αίτημα που έχει λάβει από τον πελάτη.
+     */
     @Override
     public void run() {
         while (true) {
@@ -53,6 +67,9 @@ public class ClientHandler extends Thread {
         }
     }
 
+    /**
+     * Φορτώνει τους λαγαριασμούς της υπηρεσίας mail σε μία δομή δοδομένων ArrayList.
+     */
     private void importAccounts() {
         try {
             BufferedReader file = new BufferedReader(new FileReader("MailServer/accounts.txt"));
@@ -70,6 +87,11 @@ public class ClientHandler extends Thread {
         }
     }
 
+    /**
+     * Φορτώνει την αλληλοηραφία ενός λογαριασμού σε μία δομή δεδομένων ArrayList.
+     * @param email Το email του γραμματοκιβοτίου που θέλει να φορτώσει.
+     * @return Το γραμματοκιβώτιο με όλη την αλληλογραφία (emails).
+     */
     private ArrayList<Email> importAccountMail(String email) {
         ArrayList<Email> emailList = new ArrayList<>();
         try {
@@ -85,6 +107,14 @@ public class ClientHandler extends Thread {
         return emailList;
     }
 
+    /**
+     * Εξάγει τις τιμές των μεταβλητών username και password από την κλάση Account (το username και το password του
+     * συγκεκριμένου λογαριασμού) και δημιουργεί ένα γραμματοκιβότιο για το username, ώστε να μπορεί
+     * να αποθηκεύει την αλληλογραφία.
+     * @param account Αντικείμενο της κλάσης Account.
+     * @return Επισρέφει true αν η εξαγωγή του λαγαριασμού και η δημιουργία του γραμματοκιβωτίου είναι επιτυχής, αλλιώς
+     * επιστρέφει false.
+     */
     private boolean exportAccount(Account account) {
         try {
             BufferedWriter file = new BufferedWriter(new FileWriter("MailServer/accounts.txt", true));
@@ -100,6 +130,10 @@ public class ClientHandler extends Thread {
         }
     }
 
+    /**
+     * Εξάγει την αλληλογραφία του λαγαρισμού σε ένα αρχείο username_mailbox.txt, που το username αντιστοιχεί στην τιμή
+     * του ονόματος χρήστη.
+     */
     private void exportMailbox() {
         try {
             BufferedWriter file = new BufferedWriter(new FileWriter("MailServer/" + currentAccount.getUsername() + "_mailbox.txt"));
@@ -115,6 +149,10 @@ public class ClientHandler extends Thread {
         }
     }
 
+    /**
+     * Προσθέτει στο γραμματοκιβώτιο την αλληλογραφία του χρήστη που μόλις έχει ληφθεί από τον εξυπηρετητή.
+     * @param email Το μήνυμα (email) που θα προσθεθεί στο γραμματοκιβώτιο.
+     */
     private void appendMailBox(Email email) {
         try {
             BufferedWriter file = new BufferedWriter(new FileWriter("MailServer/" + email.getReceiver() + "_mailbox.txt", true));
@@ -128,6 +166,11 @@ public class ClientHandler extends Thread {
         }
     }
 
+    /**
+     * Η λειτουργία αυτή θα επιτρέπει την δημιουργία νέου λογαριασμού
+     * email. Δεν θα επιτρέπεται η δημιουργία λογαριασμού, εφόσον το
+     * username είναι ήδη καταχωρημένο.
+     */
     private void register() {
         try {
             String username = in.readUTF();
@@ -153,6 +196,13 @@ public class ClientHandler extends Thread {
         }
     }
 
+    /**
+     * Η λειτουργία αυτή πιστοποιεί τον χρήστη. Σε περίπτωση
+     * λανθασμένου κωδικού ή ονόματος χρήστη θα επιστρέφεται κάποιο
+     * ενδεικτικό μήνυμα (π.χ “Invalid user or password”). Σε περίπτωση
+     * επιτυχούς πιστοποίησης ο χρήστης θα έχει πρόσβαση στις
+     * επόμενες λειτουργίες.
+     */
     private void logIn() {
         try {
             received = in.readUTF();
@@ -181,6 +231,12 @@ public class ClientHandler extends Thread {
         }
     }
 
+    /**
+     * Η λειτουργία αυτή δημιουργεί ένα νέο Email συμπληρωμένο από
+     * τον χρήστη και το στέλνει στο γραμματοκιβώτιο του παραλήπτη.
+     * Σε περίπτωση που ο παραλήπτης δεν είναι έγκυρος χρήστης, το
+     * Email θα απορρίπτεται και θα επιστρέφεται ένα ενδεικτικό μήνυμα.
+     */
     private void newEmail() {
         try {
             Email sentEmail = new Email();
@@ -210,6 +266,12 @@ public class ClientHandler extends Thread {
         }
     }
 
+    /**
+     * Η λειτουργία αυτή θα εμφανίζει τo γραμματοκιβώτιο του χρήστη,
+     * προβάλλοντας μία προεπισκόπηση του κάθε Email και το id του,
+     * προκειμένου ο χρήστης να είναι σε θέση να αναφερθεί σε κάθε
+     * Email.
+     */
     private void showEmails() {
         try {
             out.writeUTF(String.valueOf(currentAccount.getMailbox().size()));
@@ -223,6 +285,13 @@ public class ClientHandler extends Thread {
         }
     }
 
+    /**
+     * Η λειτουργία αυτή θα δέχεται ως όρισμα το id ενός Email και θα το
+     * προβάλλει ολοκληρωμένο στον χρήστη. Σε περίπτωση που το Email
+     * ήταν αδιάβαστο, το πεδίο isNew θα γίνεται false. Σε περίπτωση
+     * λανθασμένου id θα επιστρέφεται ένα ενδεικτικό μήνυμα.
+     * @param emailId Το id του μηνύματος που θέλει να διαβάσει.
+     */
     private void readEmail(String emailId) {
         try {
             if (Integer.parseInt(emailId)<=0 || Integer.parseInt(emailId)>currentAccount.getMailbox().size()) {
@@ -235,6 +304,12 @@ public class ClientHandler extends Thread {
         }
     }
 
+    /**
+     * Η λειτουργία αυτή θα δέχεται ως όρισμα το id ενός Email και θα το
+     * διαγράφει από το γραμματοκιβώτιο του χρήστη. Σε περίπτωση
+     * λανθασμένου id θα επιστρέφεται ένα ενδεικτικό μήνυμα.
+     * @param emailId Το id του μηνύματος που θέλει να διαγράψει.
+     */
     private void deleteEmail(String emailId) {
         try {
             if (Integer.parseInt(emailId)<=0 || Integer.parseInt(emailId)>currentAccount.getMailbox().size()) {
@@ -247,12 +322,20 @@ public class ClientHandler extends Thread {
         }
     }
 
+    /**
+     * Η λειτουργία αυτή θα αποσυνδέει τον χρήστη από τον λογαριασμό
+     * του και θα τον επιστρέφει στο αρχικό μενού επιλογών.
+     */
     private void logOut() {
         exportMailbox();
         Account account = new Account();
         currentAccount.setAccount(account);
     }
 
+    /**
+     * Η λειτουργία αυτή θα τερματίζει την σύνδεση του πελάτη με τον
+     * εξυπηρετητή και θα απελευθερώνει τους πόρους του συστήματος.
+     */
     private void exit() {
             System.out.println("Socket " + socket + " close.");
             try {
