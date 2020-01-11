@@ -1,9 +1,7 @@
 import java.io.*;
 import java.net.Socket;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Scanner;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author Δημήτριος Παντελεήμων Γιακάτος
@@ -71,7 +69,7 @@ public class ClientHandler extends Thread {
      */
     private void importAccounts() {
         try {
-            BufferedReader file = new BufferedReader(new FileReader("MailServer/accounts.txt"));
+            BufferedReader file = new BufferedReader(new FileReader("ServerFiles/accounts.txt"));
             Scanner scanner = new Scanner(file);
             String username;
             String password;
@@ -94,7 +92,7 @@ public class ClientHandler extends Thread {
     private ArrayList<Email> importAccountMail(String email) {
         ArrayList<Email> emailList = new ArrayList<>();
         try {
-            BufferedReader file = new BufferedReader(new FileReader("MailServer/".concat(email.concat("_mailbox.txt"))));
+            BufferedReader file = new BufferedReader(new FileReader("ServerFiles/".concat(email.concat("_mailbox.txt"))));
             Scanner scanner = new Scanner(file);
             while (scanner.hasNextLine()) {
                 emailList.add(new Email(Boolean.parseBoolean(scanner.nextLine()), scanner.nextLine(), email, scanner.nextLine(), scanner.nextLine()));
@@ -116,11 +114,11 @@ public class ClientHandler extends Thread {
      */
     private boolean exportAccount(Account account) {
         try {
-            BufferedWriter file = new BufferedWriter(new FileWriter("MailServer/accounts.txt", true));
+            BufferedWriter file = new BufferedWriter(new FileWriter("ServerFiles/accounts.txt", true));
             file.write(account.getUsername() + "\n");
             file.write(account.getPassword() + "\n");
             file.close();
-            file = new BufferedWriter(new FileWriter("MailServer/" + account.getUsername() + "_mailbox.txt"));
+            file = new BufferedWriter(new FileWriter("ServerFiles/" + account.getUsername() + "_mailbox.txt"));
             file.close();
             return true;
         } catch (IOException e) {
@@ -135,7 +133,7 @@ public class ClientHandler extends Thread {
      */
     private void exportMailbox() {
         try {
-            BufferedWriter file = new BufferedWriter(new FileWriter("MailServer/" + currentAccount.getUsername() + "_mailbox.txt"));
+            BufferedWriter file = new BufferedWriter(new FileWriter("ServerFiles/" + currentAccount.getUsername() + "_mailbox.txt"));
             for (Email email : currentAccount.getMailbox()) {
                 file.write(email.getIsNew() + "\n");
                 file.write(email.getSender() + "\n");
@@ -154,7 +152,7 @@ public class ClientHandler extends Thread {
      */
     private void appendMailBox(Email email) {
         try {
-            BufferedWriter file = new BufferedWriter(new FileWriter("MailServer/" + email.getReceiver() + "_mailbox.txt", true));
+            BufferedWriter file = new BufferedWriter(new FileWriter("ServerFiles/" + email.getReceiver() + "_mailbox.txt", true));
             file.write(email.getIsNew() + "\n");
             file.write(email.getSender() + "\n");
             file.write(email.getSubject() + "\n");
