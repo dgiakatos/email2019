@@ -86,7 +86,7 @@ public class ClientHandler extends Thread {
 
     /**
      * Φορτώνει την αλληλοηραφία ενός λογαριασμού σε μία δομή δεδομένων ArrayList.
-     * @param email Το email του γραμματοκιβοτίου που θέλει να φορτώσει.
+     * @param email Το email του γραμματοκιβωτίου που θέλει να φορτώσει.
      * @return Το γραμματοκιβώτιο με όλη την αλληλογραφία (emails).
      */
     private ArrayList<Email> importAccountMail(String email) {
@@ -106,7 +106,7 @@ public class ClientHandler extends Thread {
 
     /**
      * Εξάγει τις τιμές των μεταβλητών username και password από την κλάση Account (το username και το password του
-     * συγκεκριμένου λογαριασμού) και δημιουργεί ένα γραμματοκιβότιο για το username, ώστε να μπορεί
+     * συγκεκριμένου λογαριασμού) και δημιουργεί ένα γραμματοκιβώτιο για το username, ώστε να μπορεί
      * να αποθηκεύει την αλληλογραφία.
      * @param account Αντικείμενο της κλάσης Account.
      * @return Επισρέφει true αν η εξαγωγή του λαγαριασμού και η δημιουργία του γραμματοκιβωτίου είναι επιτυχής, αλλιώς
