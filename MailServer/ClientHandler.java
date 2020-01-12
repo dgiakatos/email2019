@@ -50,6 +50,8 @@ public class ClientHandler extends Thread {
                 } else if (received.equals("LogOut") && !currentAccount.isNull()) {
                     logOut();
                 } else if (received.equals("ShowEmails") && !currentAccount.isNull()) {
+                    currentAccount.getMailbox().clear();
+                    currentAccount.setMailbox(importAccountMail(currentAccount.getUsername()));
                     showEmails();
                 } else if (received.split(" ")[0].equals("ReadEmail") && !currentAccount.isNull()) {
                     readEmail(received.split(" ")[1]);
@@ -296,6 +298,7 @@ public class ClientHandler extends Thread {
             }
             currentAccount.getMailbox().get(Integer.parseInt(emailId)-1).setIsNew(false);
             out.writeUTF(currentAccount.getMailbox().get(Integer.parseInt(emailId)-1).getMainBody());
+            exportMailbox();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -314,6 +317,7 @@ public class ClientHandler extends Thread {
             }
             currentAccount.getMailbox().remove(Integer.parseInt(emailId)-1);
             out.writeUTF("Email deleted.");
+            exportMailbox();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -324,7 +328,6 @@ public class ClientHandler extends Thread {
      * του και θα τον επιστρέφει στο αρχικό μενού επιλογών.
      */
     private void logOut() {
-        exportMailbox();
         Account account = new Account();
         currentAccount.setAccount(account);
     }
